@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Um desafio pra você 💌</title>
+<meta property="og:title" content="Um desafio pra você 💌">
+<meta property="og:description" content="Acerte 10 perguntas sobre mim pra destravar uma surpresa.">
+<meta name="theme-color" content="#2a0f1c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #2a0f1c;
+    --bg2: #4a1430;
+    --card: #fff8f4;
+    --ink: #2b1720;
+    --muted: #8a6a76;
+    --rosa: #e0457b;
+    --rosa-escuro: #b8285c;
+    --ok: #2f9e6b;
+    --linha: #f0dfe4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    color: var(--ink);
+    background: radial-gradient(120% 80% at 50% 0%, var(--bg2), var(--bg) 70%) fixed;
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px 16px;
+    overflow-x: hidden;
+  }
+  #coracoes { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+  #coracoes span {
+    position: absolute; bottom: -40px; opacity: .0;
+    animation: subir linear infinite;
+  }
+  @keyframes subir {
+    0% { transform: translateY(0) rotate(0); opacity: 0; }
+    10% { opacity: .35; }
+    100% { transform: translateY(-115vh) rotate(25deg); opacity: 0; }
+  }
+  .card {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 440px;
+    background: var(--card);
+    border-radius: 24px;
+    padding: 32px 24px 28px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.45);
+    text-align: center;
+  }
+  .tela { display: none; }
+  .tela.ativa { display: block; animation: entrar .45s ease; }
+  @keyframes entrar { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  h1, h2, .serif { font-family: Fraunces, Georgia, serif; }
+  h1 { font-size: 34px; margin: 8px 0 12px; font-weight: 600; }
+  h2 { font-size: 24px; line-height: 1.3; margin: 8px 0 22px; font-weight: 600; }
+  p { line-height: 1.6; }
+  .grande { font-size: 56px; line-height: 1; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+  button {
+    font: 600 17px Inter, system-ui, sans-serif;
+    border: 0; border-radius: 14px;
+    background: var(--rosa); color: #fff;
+    padding: 16px 20px; width: 100%;
+    cursor: pointer; transition: background .2s, transform .1s;
+  }
+  button:hover { background: var(--rosa-escuro); }
+  button:active { transform: scale(.98); }
+  button:disabled { opacity: .6; cursor: wait; }
+  .topo { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: var(--muted); font-weight: 500; }
+  .barra { height: 8px; background: var(--linha); border-radius: 99px; margin: 10px 0 24px; overflow: hidden; }
+  .barra > div { height: 100%; width: 0; background: linear-gradient(90deg, #ff7aa2, var(--rosa)); border-radius: 99px; transition: width .5s ease; }
+  input {
+    width: 100%; font: 18px Inter, system-ui, sans-serif;
+    padding: 15px 16px; border-radius: 14px;
+    border: 2px solid var(--linha); background: #fff; color: var(--ink);
+    outline: none; margin-bottom: 12px; text-align: center;
+  }
+  input:focus { border-color: var(--rosa); }
+  .tremer { animation: tremer .4s; border-color: var(--rosa) !important; }
+  @keyframes tremer { 20%,60% { transform: translateX(-8px); } 40%,80% { transform: translateX(8px); } }
+  .acertou { border-color: var(--ok) !important; }
+  #msg { min-height: 24px; margin: 4px 0 0; font-size: 15px; color: var(--rosa-escuro); font-weight: 500; }
+  #msg.ok { color: var(--ok); }
+  .estrelas { font-size: 20px; letter-spacing: 4px; margin-top: 18px; }
+  .carta { text-align: left; }
+  .carta h1 { text-align: center; }
+  .carta .texto { font-family: Fraunces, Georgia, serif; font-size: 18px; line-height: 1.75; }
+  .carta .texto p { margin: 0 0 1.1em; white-space: pre-line; }
+  .envelope { font-size: 72px; cursor: pointer; display: inline-block; animation: pulsar 1.4s ease-in-out infinite; user-select: none; }
+  @keyframes pulsar { 50% { transform: scale(1.08); } }
+  .estouro { position: fixed; z-index: 5; pointer-events: none; font-size: 22px; animation: estouro .9s ease-out forwards; }
+  @keyframes estouro { to { transform: translate(var(--dx), var(--dy)) scale(.4); opacity: 0; } }
+  .fundo-modal { position: fixed; inset: 0; z-index: 10; background: rgba(20,5,12,.7); display: none; align-items: center; justify-content: center; padding: 16px; }
+  .fundo-modal.aberto { display: flex; animation: entrar .35s ease; }
+  .vale {
+    width: 100%; max-width: 360px; text-align: center;
+    background: linear-gradient(160deg, #fff4d6, #ffe0ea);
+    border: 3px dashed var(--rosa); border-radius: 22px;
+    padding: 28px 22px 22px; box-shadow: 0 30px 80px rgba(0,0,0,.5);
+    animation: pop .5s cubic-bezier(.2,1.6,.4,1);
+  }
+  @keyframes pop { from { transform: scale(.6) rotate(-6deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  .vale .etiqueta { font: 600 13px Inter, sans-serif; letter-spacing: 3px; color: var(--rosa-escuro); }
+  .vale .titulo { font: 600 34px Fraunces, Georgia, serif; margin: 6px 0 2px; }
+  .vale .valor { font: 600 44px Fraunces, Georgia, serif; color: var(--rosa); margin: 4px 0 10px; }
+  .vale .validade { display: inline-block; background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 99px; margin: 8px 0 20px; }
+  #botaoVale { margin-top: 12px; background: #f5c542; color: var(--ink); }
+  #botaoVale:hover { background: #e9b52a; }
+</style>
+</head>
+<body>
+<div id="coracoes" aria-hidden="true"></div>
+
+<main class="card">
+  <section class="tela ativa" id="inicio">
+    <div class="grande">💌</div>
+    <h1>Oi, amor</h1>
+    <p class="sub">Eu escrevi uma coisa pra você.<br>Mas antes, prova que me conhece: são <b>10 perguntas sobre mim</b>. Acertou todas, a surpresa abre.</p>
+    <button id="comecar">Começar</button>
+  </section>
+
+  <section class="tela" id="quiz">
+    <div class="topo"><span id="contador">Pergunta 1 de 10</span><span id="acertos">0 ❤️</span></div>
+    <div class="barra"><div id="progresso"></div></div>
+    <h2 id="pergunta"></h2>
+    <form id="form" autocomplete="off">
+      <input id="resposta" type="text" placeholder="Sua resposta…" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
+      <button id="enviar" type="submit">Responder</button>
+    </form>
+    <p id="msg"></p>
+  </section>
+
+  <section class="tela" id="fim">
+    <div class="grande">🏆</div>
+    <h1>Acertou tudo!</h1>
+    <p class="sub">Você me conhece mesmo. Agora toca no envelope.</p>
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Abrir carta">✉️</div>
+  </section>
+
+  <section class="tela carta" id="carta">
+    <h1>Pra você ❤️</h1>
+    <div class="texto" id="texto"></div>
+    <div id="fimDaCarta"></div>
+    <button id="botaoVale" type="button">🎁 Tem mais uma coisa…</button>
+  </section>
+</main>
+
+<div class="fundo-modal" id="modalVale" role="dialog" aria-modal="true">
+  <div class="vale">
+    <div class="etiqueta">VOCÊ GANHOU</div>
+    <div class="grande">🍰</div>
+    <div class="titulo" id="valeTitulo"></div>
+    <div class="valor" id="valeValor"></div>
+    <p id="valeTexto" style="margin:0"></p>
+    <div class="validade" id="valeValidade"></div>
+    <button id="fecharVale" type="button">Eba! 😍</button>
+  </div>
+</div>
+
+<script>
+const DADOS = {"iter":60000,"quiz":[{"pergunta":"Qual é a minha comida favorita?","salt":"pcH24TKTD0BTunwFJp5Ung==","travas":[{"iv":"3wOGhZvWnrcRYZoI","ct":"Nt5Nnh6Y8oLrsMgT33WlVLXeh8KRfIOJcvxZsxWlVugWAFMcV4St6o58M8rLsS+y"},{"iv":"7HSru9doDJ+vOIw0","ct":"1ppn67L3knk5lLT+GKI183CitlBaAkRh4zNud6fUSDY3jAwZXFjmsDq1+UsrCkQi"},{"iv":"Zx8zcM/Q3NG8GkgV","ct":"gdqhfDn2DQ0FU616a7zu9vvjxOsX7n8YY8XnXxUt+3f2AR1/P/XRNQG7HhFsgJRp"}]},{"pergunta":"Qual é a minha série favorita?","salt":"RPPdkePsyMUNK6t7F1ivNQ==","travas":[{"iv":"ZLGKVtJuVG7kgpm0","ct":"IE1Hl2zyEoveShvZJw+eItl7RqjQM34ltrl6eWxHaUwC5oadtVscemZnpcv/c2zw"},{"iv":"7fARh1KVu82Oj8ho","ct":"SqIGzA2wRF7goO26VgjME9TXFOg5LFBHx2E2/cbmpJEhjc9AyGelicuJuFQ72lxJ"},{"iv":"/NY1mzdZslcK6ur4","ct":"nIo583C0NL3F+W7ABaoloKR3G+uNA7VAJY0PGQb7pIphW9y4v5ByXGToMeEtWwh7"},{"iv":"5i5oDgU1Fb+0bgMU","ct":"jJ9f3qwdVI+DTs1KIk5qLnvSO6RYBzy2oanlRXc/Ibawt3TS0ivfB23OcruI47s6"}]},{"pergunta":"Qual é o meu apelido atual?","salt":"ctE5D816iUwmth+MvjaL0Q==","travas":[{"iv":"6F8xIlsfBsC5h/4c","ct":"tH6BHf/y9RoaMKOqw+aYObsPc00LOogfm+56QDycz9ti8CI3nMvHAHiwdaE/Nbbg"},{"iv":"FeBIF9Y7vBG7lK0I","ct":"RwyRfRMAwPWxKsBZ5NgtSpiCy4cM/U1EiTHxQ6ytofg6XhfN/7DxBS31VOMeux3h"},{"iv":"AO2+7rFawVasZvHl","ct":"RG3xKFUnPh/lhH+8bHmDaDbk863q9hXVHsSho4O/QM1Q9NZJry3/FbsXw8TwXedt"}]},{"pergunta":"Qual é o meu esporte favorito?","salt":"8Yt8HP7lm85B1OGYl63jyQ==","travas":[{"iv":"zwgnfHY9MV9w6GAY","ct":"KZUs/vKYf/kaP/K2ZP42iZTc8RtS13ljfPXxbd7V6ZwXxYwSXR/aPwFsHN67rKrR"},{"iv":"Mnqq1YmV0dzW7yuC","ct":"+K2f6ZyGr4Hxd9nKqxfCVgPg0f4xUgzkHVCAH3W+8EHkTek9PEFmEJ18XI13yTQy"},{"iv":"+eyQ7Eg9Toe1ZTyn","ct":"Y5e7gGGqhqlmbOtXVWIscVDbTuU1A5xhEI705mElVklfVPc/JVuK9Rf9NM3ZPlo/"},{"iv":"SJ9VD//kilSGq7lR","ct":"lxIgbiLHEX+4T6hOWYzLvrsdbBFCtipI1uftI4Qf9LILj8e/mVxkTMDFREV/p2x/"},{"iv":"ycBIbq3NCbHksJRq","ct":"xzUPi+BTz3zwFzVDUFuiSFO3xdm/TRpb2cDMmx46YVIXNwd7bBUpYvB4hAmXntDi"}]},{"pergunta":"Qual é o meu cantor favorito?","salt":"n8TAJC0VPdV1s3ZWlxFvRQ==","travas":[{"iv":"6XcDJlfWtmqTinTj","ct":"Cdka1g+Ge7fUSvZl4bse/RGkss6ge0ut/J11JrUoQraZJFI23GqYGW//L5S/Ek9/"},{"iv":"PMF3xLzG3BVNu7M2","ct":"Eg9iX9SkuN/D8Im7Snt1ndNZcikmpdLp6poWUrs8xAKYze1Ex30FbMYGHjFno8t5"}]},{"pergunta":"Qual é o meu signo?","salt":"yJ+/ni35uF2MjsST1xIaYw==","travas":[{"iv":"1WQy+eal1Lsxshp1","ct":"OF8IF9fy7RU82VuQLZ2iWA01wKu60ak4mIjM+RDyS6hxYZkDEr9IJCW1U/ax6MF2"},{"iv":"23+B1E+0Ff2ayljM","ct":"lihkKguA6S0Fdo74BolYe0cW2PzqlWhlX3V2lQxy2oQ3tic04BHZZhfhm3vmLHTo"},{"iv":"Ml6m05AtXT//LzM+","ct":"o4hiHTcZ5rEvGH5hmVzAp5fSxwiB7iL4cL6D/yVfdYFyLxdGXEarjNE7GH7NSi2E"}]},{"pergunta":"Qual é o meu doce favorito?","salt":"ULMrc3QO5a/HXfUsG1ijlw==","travas":[{"iv":"Jq+DNKZ6wg1LIaYK","ct":"0LYX9M34zRXvom/xpD8JBf3sifz9Dv9lmPVqrNwJBUxaez1VcYUxDK7ExdhdvxMz"}]},{"pergunta":"Qual é o meu animal favorito?","salt":"vBS771JQGOzAkl+Tl0HGnA==","travas":[{"iv":"dINVgztygco1gwms","ct":"hTJeEyJlgv0NhztdjBR0+1JUDakwonXfQb52/T+7MkO7FSi3ezVqPn+NcWaCzB5W"},{"iv":"JxVORET3xtScFZ7/","ct":"7wPJwAGio7/K7y02WBJJmGyE3ONTy/N6WJy+qPgnMrb5zBjKdcMniECf32KiWiWm"},{"iv":"DoqpdzPohnh7fkpz","ct":"ZmI+nEphPpSsp8W6oksOKsuuO497S3rt/LnEWdNY3c+zq7uMOK5mB8C/V8XSNcgM"},{"iv":"4X29JNTNmjLOdgyq","ct":"C8qrjyBJxkK5Ra4HQfXvyGSNZC+pxF0QtIt/WI+Rx+gpuJGbso1ZEyR9fLcM/aYK"},{"iv":"COT5W2XyS3vcmhWA","ct":"rV1eVCgqAYpMWMsDH8uKKGjLtoWhV+Rko9JkjpuBjxyYxZ+yTCJH9wcvFKnd3xRM"},{"iv":"vmmlXPC36b6sEHHJ","ct":"RbR2pWV3qwmhZt979E3VRmQI7KefMpBxqaJVdkS1yLfjUJdyMEmAQSImn3avLIX3"}]},{"pergunta":"Qual é o meu jogador de basquete favorito?","salt":"P0SiJN+d4fTfNoa1LvHaow==","travas":[{"iv":"PJTylo0/ZeoemUaE","ct":"igPWtYLsTTe09YISdS7svqYIrpQWldY1OYRfiTeUZ9OOw8GVoXsWgvbJl3r54khF"},{"iv":"erM/OyiCwDG6YDJ4","ct":"t494+iVMujDolaZHOW0dcMauDmYEE/XyO3CsU3+VgmYZERKpWCPVisl3G5cm1FcM"},{"iv":"/rFVlEp2Jd6NKPta","ct":"ALiQZiIFdEZ3/Yc76wSOhLyvlPkKoDZJFj+tBMQIK0U+98ixo21bEvCUITv2HW1g"},{"iv":"0lNZ6xDho8+cXidC","ct":"L0EOxYZ+GxYeSASgHHD2sqHPloE1NmyrusJi1uMmmROkgqQP45zfWi3zvRTkPC1s"},{"iv":"2ImkyYoSgaVPjL1f","ct":"o/un/+su36Vfzyuw5z1eCCGRrbIPZEOVJ/iMKt5umAtHWTn5Zuoj7xcXLl7dhZXx"},{"iv":"HWoMnkV6M108BdqX","ct":"oWBSaX+JnDUvHJhQfoL1ett0jhFcNoLeENt6SK0m/8OQDOPP3frMfoBrzy03GNNv"},{"iv":"jZ/b8nUSA/OupVY5","ct":"CYqv0mM6O3m6HyJY3U3Hoct+NNsiX9ZM8hawsBUv0KTjHK9P8h6yRbSA/PycFiJo"}]},{"pergunta":"Qual lugar do mundo eu mais quero conhecer?","salt":"TUn0H0q/yIKFD9tgU/Dglw==","travas":[{"iv":"6dpBObEsgV3f4mIs","ct":"NwrD6kP3bZJx7u2v3Q/bAfvnl4XWjTfJfbAzK9C7MgwSvxmtKf0bdCAzYPnUDaKG"},{"iv":"UEt39a4k6tv/+I88","ct":"+JO8zg3o7o8UnogfArQWwN21D3WtHTcRMQDjzNmMFiTlzd0QMYCLAJQUzP0g+RlZ"},{"iv":"lgXlNd//XwouilqB","ct":"geYkqgth0yn8JhjEhYzPzgbtXxvjVXbr7PpK54Igc6LMXD/yMGdmBGfZ6dJmv/OB"},{"iv":"g1DXwbRrxtWB6Z60","ct":"6BC9PAcqbnVqfvLGX5LipP+1He0tLQiYIKmPXAUwgLhSWDBwJRwpgWKHK6I4EYxP"}]}],"carta":{"iv":"X5hs5NKk9xrkPkDz","ct":"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"}};
+const CHAVE_SALVA = 'quiz-amor-progresso';
+const ERROS = [
+  'Hmm… não é isso não 👀',
+  'Errou! Tenta de novo 😅',
+  'Tem certeza que me conhece? 🤨',
+  'Quase… ou não. Tenta outra 😂',
+  'Pensa mais um pouquinho 💭',
+];
+const ACERTOS = ['Isso! ❤️', 'Acertou! 😍', 'Sabia que você sabia 🥰', 'Boa! 💘', 'Exatamente! ✨'];
+
+const $ = (id) => document.getElementById(id);
+const dec = new TextDecoder();
+const enc = new TextEncoder();
+const deB64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+const paraB64 = (u8) => btoa(String.fromCharCode(...u8));
+const normalizar = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const sorteia = (lista) => lista[Math.floor(Math.random() * lista.length)];
+
+let segredos = [];
+try { segredos = (JSON.parse(localStorage.getItem(CHAVE_SALVA)) || []).map(deB64); } catch (e) { segredos = []; }
+const salvar = () => { try { localStorage.setItem(CHAVE_SALVA, JSON.stringify(segredos.map(paraB64))); } catch (e) {} };
+
+function mostrar(id) {
+  document.querySelectorAll('.tela').forEach((t) => t.classList.remove('ativa'));
+  $(id).classList.add('ativa');
+}
+
+function carregarPergunta() {
+  const i = segredos.length;
+  const total = DADOS.quiz.length;
+  if (i >= total) return mostrar('fim');
+  $('contador').textContent = `Pergunta ${i + 1} de ${total}`;
+  $('acertos').textContent = `${i} ❤️`;
+  $('progresso').style.width = (i / total * 100) + '%';
+  $('pergunta').textContent = DADOS.quiz[i].pergunta;
+  $('resposta').value = '';
+  $('resposta').classList.remove('acertou');
+  $('msg').textContent = '';
+  $('msg').className = '';
+  $('resposta').focus({ preventScroll: true });
+}
+
+async function testar(resposta, item) {
+  const base = await crypto.subtle.importKey('raw', enc.encode(normalizar(resposta)), 'PBKDF2', false, ['deriveKey']);
+  const chave = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: deB64(item.salt), iterations: DADOS.iter, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  for (const t of item.travas) {
+    try {
+      return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: deB64(t.iv) }, chave, deB64(t.ct)));
+    } catch (e) { /* não é essa */ }
+  }
+  return null;
+}
+
+function estourarCoracoes(el) {
+  const r = el.getBoundingClientRect();
+  for (let k = 0; k < 12; k++) {
+    const s = document.createElement('span');
+    s.className = 'estouro';
+    s.textContent = sorteia(['❤️', '💖', '💕', '✨']);
+    s.style.left = (r.left + r.width / 2) + 'px';
+    s.style.top = (r.top + r.height / 2) + 'px';
+    const ang = Math.random() * Math.PI * 2, dist = 60 + Math.random() * 90;
+    s.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+    s.style.setProperty('--dy', Math.sin(ang) * dist + 'px');
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+}
+
+$('comecar').onclick = () => { mostrar('quiz'); carregarPergunta(); };
+
+$('form').onsubmit = async (ev) => {
+  ev.preventDefault();
+  const campo = $('resposta');
+  if (!campo.value.trim()) return;
+  $('enviar').disabled = true;
+  const segredo = await testar(campo.value, DADOS.quiz[segredos.length]);
+  $('enviar').disabled = false;
+  if (segredo) {
+    segredos.push(segredo);
+    salvar();
+    campo.classList.add('acertou');
+    $('msg').textContent = sorteia(ACERTOS);
+    $('msg').className = 'ok';
+    estourarCoracoes(campo);
+    setTimeout(carregarPergunta, 900);
+  } else {
+    $('msg').textContent = sorteia(ERROS);
+    $('msg').className = '';
+    campo.classList.remove('tremer');
+    void campo.offsetWidth;
+    campo.classList.add('tremer');
+  }
+};
+
+async function abrirCarta() {
+  const tudo = new Uint8Array(segredos.length * 32);
+  segredos.forEach((s, i) => tudo.set(s, i * 32));
+  const chave = await crypto.subtle.importKey('raw', await crypto.subtle.digest('SHA-256', tudo), 'AES-GCM', false, ['decrypt']);
+  let surpresa;
+  try {
+    surpresa = JSON.parse(dec.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: deB64(DADOS.carta.iv) }, chave, deB64(DADOS.carta.ct))));
+  } catch (e) {
+    segredos = []; salvar();
+    alert('Algo deu errado, vamos recomeçar 😅');
+    return location.reload();
+  }
+  const caixa = $('texto');
+  caixa.innerHTML = '';
+  surpresa.carta.split(/\n\s*\n/).forEach((par) => {
+    const p = document.createElement('p');
+    p.textContent = par.trim();
+    caixa.appendChild(p);
+  });
+  prepararVale(surpresa.vale);
+  estourarCoracoes($('envelope'));
+  mostrar('carta');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function prepararVale(vale) {
+  // validade: até o fim do dia seguinte ao dia em que ela destravou
+  let destravou;
+  try { destravou = Number(localStorage.getItem(CHAVE_SALVA + '-data')); } catch (e) {}
+  if (!destravou) { destravou = Date.now(); try { localStorage.setItem(CHAVE_SALVA + '-data', String(destravou)); } catch (e) {} }
+  const amanha = new Date(destravou); amanha.setDate(amanha.getDate() + 1);
+  const data = amanha.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  $('valeTitulo').textContent = vale.titulo;
+  $('valeValor').textContent = vale.valor;
+  $('valeTexto').textContent = vale.texto;
+  $('valeValidade').textContent = `Válido somente até amanhã (${data}) ⏳`;
+  let jaAbriu = false;
+  const abrir = () => { $('modalVale').classList.add('aberto'); if (!jaAbriu) { jaAbriu = true; setTimeout(() => estourarCoracoes($('valeValor')), 300); } };
+  $('botaoVale').onclick = abrir;
+  // abre sozinho quando ela chega no fim da carta
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver((itens) => {
+      if (itens.some((i) => i.isIntersecting)) { obs.disconnect(); setTimeout(abrir, 1200); }
+    });
+    setTimeout(() => obs.observe($('fimDaCarta')), 1500);
+  }
+}
+$('fecharVale').onclick = () => $('modalVale').classList.remove('aberto');
+$('modalVale').onclick = (e) => { if (e.target === $('modalVale')) $('modalVale').classList.remove('aberto'); };
+
+$('envelope').onclick = abrirCarta;
+$('envelope').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') abrirCarta(); };
+
+if (segredos.length >= DADOS.quiz.length) mostrar('fim');
+else if (segredos.length > 0) { mostrar('quiz'); carregarPergunta(); }
+
+// corações subindo no fundo
+const fundo = $('coracoes');
+for (let k = 0; k < 18; k++) {
+  const s = document.createElement('span');
+  s.textContent = sorteia(['❤', '♡', '❥']);
+  s.style.left = Math.random() * 100 + '%';
+  s.style.color = sorteia(['#ff7aa2', '#e0457b', '#ffc2d4']);
+  s.style.fontSize = 14 + Math.random() * 22 + 'px';
+  s.style.animationDuration = 9 + Math.random() * 10 + 's';
+  s.style.animationDelay = -Math.random() * 18 + 's';
+  fundo.appendChild(s);
+}
+</script>
+</body>
+</html>
