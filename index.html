@@ -32,12 +32,13 @@
     display: flex; align-items: center; justify-content: center;
     padding: 24px 16px;
     overflow-x: hidden;
+    /* dificulta copiar / segurar pra salvar */
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
   }
+  input { -webkit-user-select: text; user-select: text; }
   #coracoes { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
-  #coracoes span {
-    position: absolute; bottom: -40px; opacity: .0;
-    animation: subir linear infinite;
-  }
+  #coracoes span { position: absolute; bottom: -40px; opacity: 0; animation: subir linear infinite; }
   @keyframes subir {
     0% { transform: translateY(0) rotate(0); opacity: 0; }
     10% { opacity: .35; }
@@ -51,16 +52,18 @@
     padding: 32px 24px 28px;
     box-shadow: 0 30px 80px rgba(0,0,0,.45);
     text-align: center;
+    transition: filter .15s;
   }
   .tela { display: none; }
   .tela.ativa { display: block; animation: entrar .45s ease; }
   @keyframes entrar { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-  h1, h2, .serif { font-family: Fraunces, Georgia, serif; }
+  h1, h2 { font-family: Fraunces, Georgia, serif; }
   h1 { font-size: 34px; margin: 8px 0 12px; font-weight: 600; }
   h2 { font-size: 24px; line-height: 1.3; margin: 8px 0 22px; font-weight: 600; }
   p { line-height: 1.6; }
   .grande { font-size: 56px; line-height: 1; }
   .sub { color: var(--muted); margin: 0 0 24px; }
+  .aviso { color: var(--rosa-escuro); font-size: 14px; font-weight: 500; margin: -8px 0 22px; }
   button {
     font: 600 17px Inter, system-ui, sans-serif;
     border: 0; border-radius: 14px;
@@ -84,45 +87,65 @@
   .tremer { animation: tremer .4s; border-color: var(--rosa) !important; }
   @keyframes tremer { 20%,60% { transform: translateX(-8px); } 40%,80% { transform: translateX(8px); } }
   .acertou { border-color: var(--ok) !important; }
-  #msg { min-height: 24px; margin: 4px 0 0; font-size: 15px; color: var(--rosa-escuro); font-weight: 500; }
-  #msg.ok { color: var(--ok); }
-  .estrelas { font-size: 20px; letter-spacing: 4px; margin-top: 18px; }
+  .msg { min-height: 24px; margin: 4px 0 0; font-size: 15px; color: var(--rosa-escuro); font-weight: 500; }
+  .msg.ok { color: var(--ok); }
   .carta { text-align: left; }
   .carta h1 { text-align: center; }
   .carta .texto { font-family: Fraunces, Georgia, serif; font-size: 18px; line-height: 1.75; }
   .carta .texto p { margin: 0 0 1.1em; white-space: pre-line; }
-  .envelope { font-size: 72px; cursor: pointer; display: inline-block; animation: pulsar 1.4s ease-in-out infinite; user-select: none; }
+  .envelope { font-size: 72px; cursor: pointer; display: inline-block; animation: pulsar 1.4s ease-in-out infinite; }
   @keyframes pulsar { 50% { transform: scale(1.08); } }
   .estouro { position: fixed; z-index: 5; pointer-events: none; font-size: 22px; animation: estouro .9s ease-out forwards; }
   @keyframes estouro { to { transform: translate(var(--dx), var(--dy)) scale(.4); opacity: 0; } }
-  .fundo-modal { position: fixed; inset: 0; z-index: 10; background: rgba(20,5,12,.7); display: none; align-items: center; justify-content: center; padding: 16px; }
-  .fundo-modal.aberto { display: flex; animation: entrar .35s ease; }
+  #botaoVale { margin-top: 12px; background: #f5c542; color: var(--ink); }
+  #botaoVale:hover { background: #e9b52a; }
+  .alerta-carta { text-align: center; font-size: 13px; color: var(--muted); margin: 18px 0 0; }
+
   .vale {
-    width: 100%; max-width: 360px; text-align: center;
     background: linear-gradient(160deg, #fff4d6, #ffe0ea);
     border: 3px dashed var(--rosa); border-radius: 22px;
-    padding: 28px 22px 22px; box-shadow: 0 30px 80px rgba(0,0,0,.5);
+    padding: 26px 18px 22px; margin-top: 4px;
     animation: pop .5s cubic-bezier(.2,1.6,.4,1);
   }
   @keyframes pop { from { transform: scale(.6) rotate(-6deg); opacity: 0; } to { transform: none; opacity: 1; } }
   .vale .etiqueta { font: 600 13px Inter, sans-serif; letter-spacing: 3px; color: var(--rosa-escuro); }
   .vale .titulo { font: 600 34px Fraunces, Georgia, serif; margin: 6px 0 2px; }
   .vale .valor { font: 600 44px Fraunces, Georgia, serif; color: var(--rosa); margin: 4px 0 10px; }
-  .vale .validade { display: inline-block; background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 99px; margin: 8px 0 20px; }
-  #botaoVale { margin-top: 12px; background: #f5c542; color: var(--ink); }
-  #botaoVale:hover { background: #e9b52a; }
+  .validade { display: inline-block; background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 99px; margin: 8px 0 4px; }
+
+  /* proteção: some tudo quando a página perde o foco ou alguém tenta imprimir */
+  body.escondido .card { filter: blur(24px) brightness(.6); }
+  body.escondido #cortina { display: flex; }
+  #cortina {
+    display: none; position: fixed; inset: 0; z-index: 20;
+    background: var(--bg); color: #fff; align-items: center; justify-content: center;
+    font: 600 20px Fraunces, Georgia, serif; text-align: center; padding: 24px;
+  }
+  @media print { body * { display: none !important; } body::after { content: "Nada de print 😏"; display: block !important; } }
 </style>
 </head>
 <body>
 <div id="coracoes" aria-hidden="true"></div>
+<div id="cortina">🙈 Nada de print, hein!<br>Toca na tela pra voltar.</div>
 
 <main class="card">
   <section class="tela ativa" id="inicio">
     <div class="grande">💌</div>
     <h1>Oi, amor</h1>
     <p class="sub">Eu escrevi uma coisa pra você.<br>Mas antes, prova que me conhece: são <b>10 perguntas sobre mim</b>. Acertou todas, a surpresa abre.</p>
-    <p class="sub" style="margin-top:-12px">⚠️ Você só pode errar <b>3 vezes</b>. No 4º erro, já era.</p>
+    <p class="aviso">⚠️ Você só pode errar <b>3 vezes</b>. No 4º erro, já era.</p>
     <button id="comecar">Começar</button>
+  </section>
+
+  <section class="tela" id="nome">
+    <div class="grande">🔐</div>
+    <h2>Primeiro: quem é você?</h2>
+    <p class="sub">Escreve o seu <b>nome completo</b>.</p>
+    <form id="formNome" autocomplete="off">
+      <input id="campoNome" type="text" placeholder="Nome completo…" autocorrect="off" spellcheck="false" enterkeyhint="go">
+      <button id="enviarNome" type="submit">Continuar</button>
+    </form>
+    <p class="msg" id="msgNome"></p>
   </section>
 
   <section class="tela" id="quiz">
@@ -133,7 +156,7 @@
       <input id="resposta" type="text" placeholder="Sua resposta…" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go">
       <button id="enviar" type="submit">Responder</button>
     </form>
-    <p id="msg"></p>
+    <p class="msg" id="msg"></p>
   </section>
 
   <section class="tela" id="perdeu">
@@ -152,26 +175,40 @@
   <section class="tela carta" id="carta">
     <h1>Pra você ❤️</h1>
     <div class="texto" id="texto"></div>
-    <div id="fimDaCarta"></div>
     <button id="botaoVale" type="button">🎁 Tem mais uma coisa…</button>
+    <p class="alerta-carta">Depois de tocar aqui, a carta não pode mais ser aberta.</p>
+  </section>
+
+  <section class="tela" id="valePagina">
+    <div class="vale">
+      <div class="etiqueta">VOCÊ GANHOU</div>
+      <div class="grande">🍰</div>
+      <div class="titulo" id="valeTitulo"></div>
+      <div class="valor" id="valeValor"></div>
+      <p id="valeTexto" style="margin:0"></p>
+      <div class="validade" id="valeValidade"></div>
+    </div>
+    <p class="sub" style="margin:20px 0 14px">Pra garantir o vale, toca em <b>Resgatar</b> 👇</p>
+    <button id="resgatar" type="button" style="background:#25d366">Resgatar 🍫</button>
+  </section>
+
+  <section class="tela" id="concluido">
+    <div class="grande">🔒</div>
+    <h1>Concluído</h1>
+    <p class="sub">Essa surpresa já foi aberta e não pode ser vista de novo.</p>
+    <p class="validade" id="lembreteVale" style="display:none"></p>
+    <div id="resgatePendente" style="display:none; margin-top:18px">
+      <p class="sub" style="margin:0 0 14px">Você ainda não resgatou o vale! Toca em <b>Resgatar</b> 👇</p>
+      <button id="resgatar2" type="button" style="background:#25d366">Resgatar 🍫</button>
+    </div>
+    <p class="sub" id="jaResgatou" style="display:none; margin:16px 0 0">Vale resgatado ✅</p>
   </section>
 </main>
 
-<div class="fundo-modal" id="modalVale" role="dialog" aria-modal="true">
-  <div class="vale">
-    <div class="etiqueta">VOCÊ GANHOU</div>
-    <div class="grande">🍰</div>
-    <div class="titulo" id="valeTitulo"></div>
-    <div class="valor" id="valeValor"></div>
-    <p id="valeTexto" style="margin:0"></p>
-    <div class="validade" id="valeValidade"></div>
-    <button id="fecharVale" type="button">Eba! 😍</button>
-  </div>
-</div>
-
 <script>
-const DADOS = {"iter":60000,"quiz":[{"pergunta":"Qual é a minha comida favorita?","salt":"n6uOvYcBYRiWMw6FJdmqMA==","travas":[{"iv":"ObujSB161Cy0OPzG","ct":"cHclQRnEyevx7ltIM8v8IVRwVihdg0UUFJTKdppf4ZFSrKczkhumicmm96gQ4W4r"},{"iv":"+gqPbiTEBp3oACTP","ct":"ABz/Abw+0inZ/Jg229z4hSoZmL6IV6Kz2WhWXr8sG4nkvj/CHpBShI0RQY7orPz5"},{"iv":"aQFdXSl4EShTNDkL","ct":"N30CKzNfurUKhrNq9CogsLMmyTJYfaqIIrBY3SbvasR/ceeTOun2KDodmIkqPhKt"}]},{"pergunta":"Qual é a minha série favorita?","salt":"wAFWYlr8sQe4QQ6BhNnhIw==","travas":[{"iv":"jrAUaboMp3BUF9gm","ct":"W9ZFcHfh2e/kwGXZkHHMgniEB65wt7FV9A1z+ez0u/8Sk4HfEhGruV7eEdUuPXJU"},{"iv":"omaA0FeXEETWN401","ct":"aQpyuyZcp0cpF8ddEFlfvaabTP37Y0UcIjIRs5sUS0wG5SltQQxAzJw5uG055fgU"},{"iv":"ScfDlMqmjA/JK1KM","ct":"GMRe00EORyimeBRHZcKcR1uIctQb+p+HH9mjIj9In9vMBS6UXDgbAU3rz9uEZQuW"},{"iv":"P7CandVgDnNJST/Z","ct":"QX2Cuzq10/RcxUD+g9KVNVSkRctiXS7VwLfXF6DutL2SLDv0ZlP3Tp/igBTP8W7A"}]},{"pergunta":"Qual é o meu apelido atual?","salt":"e9OPaTYAjDaW72vW0zUzNw==","travas":[{"iv":"6PoeTYRBimywiHP4","ct":"5JgNYU8Slj2er9p/UEke2JIRHDHqjFgzuCSuLciBv4tRbQCBIl60Ow7nS13khfIm"},{"iv":"fdRrV5gjEryHkYMG","ct":"zBmlnrj+Ac4wsAdq0kuHAj4zZRLedCaF+Wv+JOPXyXRmwrzvenBNuK1GiWiuYq94"},{"iv":"FRIqQcDIvHv5aE7o","ct":"fIVfTGf/J454oGbm+JPkMG9TvSKH3AdW5cIl8W4/xRsuNizW3iy8D0sQ8pD3/D/F"}]},{"pergunta":"Qual é o meu esporte favorito?","salt":"VbxLFnP9SKTxWrv3NKRC5A==","travas":[{"iv":"TL1vuN6SFQh1XTE3","ct":"3SP7yHja24dYpsDDsf1qsTz69WxfL7yFsNiOE9+PlSWFKhqo+Ip/geWEhnbZPin3"},{"iv":"j8RY4KfgyCIhBRl+","ct":"tgQe5GkyHanDahd/SeummB3+dzCqb0hjPcYBJWbuqgnVVYiQw78Gzp8gGfe/UWp+"},{"iv":"zS21o63T5ZVDJgCA","ct":"8PqPwz8fgRey5NhPFlJycTXGIz2cf5eTmiYwSpESpbbIvX/GcJfbpA1eH/yTTdzM"},{"iv":"ZsFt6hK58I+hb03G","ct":"4xJz5Qmb9MLd9hZLqHGcpAjKoiXSpxK2LBxtZJBwgbfwTSbKDcOZW17uaMDb0JHk"},{"iv":"HSmnEukCAJpu1UQH","ct":"VPnp7vzAUcfl5vnVWSrFwJjeAUtfRPngCUTlPTNwg2Dg9jssQsVnoUM2mtLyg9oy"}]},{"pergunta":"Qual é o meu cantor favorito?","salt":"Jhnx78YvfB4u6ugEM6cWfA==","travas":[{"iv":"LaT4B0P+AjsNUC78","ct":"88jkWa8Prch9PZxsyhhmrPbdGreR9yd7DM2FPU19pMQxpghFMfAZw3NBACtkGW4t"},{"iv":"dCJqRGPN918Fv8T7","ct":"tiXLdYGXNunQmrMPT7l7ODr68tquItn14OnOQQ2tClIuqoeUrbndwoEhKYoHhZpc"}]},{"pergunta":"Qual é o meu signo?","salt":"2/x5m26dnfwhN9kTydx5Sg==","travas":[{"iv":"XByrDiGGnO66xmJ7","ct":"82cXZlSBhVUSv5aHeeUHlMKky+VRMALYyyjl1PZZFZnZFeVjkJ7jmm1uN8QFtVM7"},{"iv":"YUuMUUJaveo+p1cu","ct":"s4lgN7/I9fn1At/ACtuqghclo83tNHfj0IiTiIcLewoEhlQctORyphM/6NA8Tja4"},{"iv":"9W5cBBxAwNCL2cSZ","ct":"cXL6iReGTvmKrfxOsR+8Jtlb/fuCD3QxjboTItIq3X+MGVqGIKJAP9Kw0d/PxLtQ"}]},{"pergunta":"Qual é o meu doce favorito?","salt":"CZi+fOm7+2xs/7jJA+6e3g==","travas":[{"iv":"QsoN0VEOls42EkFp","ct":"lwEYWh6yzW/Z8Nocukbio6zeu6Jayd2/QGzp5Pwn7hUUouMfTgeVmJiZkF/4ZRt9"}]},{"pergunta":"Qual é o meu animal favorito?","salt":"OW1wrwxB5V21IHGmcll0AQ==","travas":[{"iv":"Ktjf2YNy8RqDNMri","ct":"tns+KRwbumGOoN9lDSG6LRrJ0lb//O+6z/8yVepzaePnYy1aGEgNbAVBGeaikW3C"},{"iv":"44NEPYO6LDa34Rqk","ct":"TD47MZqblGynlv99xel2fA6HRr6dNx1MTaQ0HZvjHay5k1RLy+TuoOXQ3/UUA0K1"},{"iv":"IXU1oLHevp/OVuGk","ct":"NYQfPqxKOtYFJDhgJu1s6PQeSLvRZlLAE+jfctY6ImIx1k90bfRaaJLcrNuI87K7"},{"iv":"5x+kxQKkdvzbNydE","ct":"5sDBYjtxN576U9l6eVQYIATMe4MSAiQIM7kYugCy55SAOo3rSnbw+plcpB/ZfJpo"},{"iv":"UpFfuvnFUdDuOvDS","ct":"QFEDrZOqMuhAA5TexVDZhdkImqEuH1z+H84DktNzRrDP1kuyZO78aCYmHcZ/4TEJ"},{"iv":"nxe2smWxBma/xXJv","ct":"0bZavBRVZPZP65Oltn9iZsPF16lol1cC8eeqJXjf861e6fIKn/OjBRaYpmHa+TJR"}]},{"pergunta":"Qual é o meu jogador de basquete favorito?","salt":"3rc7ltVS/EKERxBUYf0leQ==","travas":[{"iv":"i3PbSMTVdSD958qz","ct":"jCoE/L5GNEJkZmwQYMIHLZD2U0I6gBQXYubSccthhSwsh+LzHH+aqcrGghu/CZxI"},{"iv":"clxik8q1zavjv7BQ","ct":"3nukrL0rEmb6u/HUluD1Yah0Grr6gVPCkQziAeitxhbGq4JfBTiKwLaDlxnAD3nS"},{"iv":"nmBZyFlFch0cie7G","ct":"vL+8N07+X59i2kkd1nEc9e1BX/3gM9Y8cJlAIHWiuQeCLEEZ8yrK8gA26aW6hxOP"},{"iv":"WjmthEBgc/RsSrDC","ct":"1ofl7x0rfGnRp8iK770dllxYSVmMmcBCR5uQuS1KGaPRDuACgNkASS18WXz8SHh1"},{"iv":"NT2/7qrr9eFIudi2","ct":"AqQDh2QnaqxtXBneNFxa5Q8Qf9VRCgFdj3LHpYEgLaor2o/fP68U2HdVSwCWJw+H"},{"iv":"wxzwHs6gNnjnt09A","ct":"nlyWQqwv3/5AFpL6YCLGrQOtLvMF5iWZ5zp3k1zX+YyLK+FqbBky30HssgWepqbj"},{"iv":"P+GTa0zrJtmTGayF","ct":"u4R4OjDQdPd2epANMwMmIDebRb+bVFHrgmn4CdVVYg+/OuD1xrzUZAs1C8S/nOUq"}]},{"pergunta":"Qual lugar do mundo eu mais quero conhecer?","salt":"NlB7Uzj8spw5b+DJeed17Q==","travas":[{"iv":"L3DLU296I6RjAYhi","ct":"ua0an4cJrwsEFCZ1ogtosWMUDUC+Ei+Lf+9k2ucW4qPCjBGD2fyuw8iQC9JgSHoG"},{"iv":"6n9zcnvCPTgLVVhX","ct":"NOvbjrGDYl+RJykmf5XY3UfvpQexRkYIGrbC8QQ32OlLkg0888YskJA0vl5P3i/d"},{"iv":"jt/31OsxYfyNjnnJ","ct":"gWxGJ+iEws7HLADfpkc/2ZPzL01D8GoASogTEeY4d+MOtIlihxB7pd0lUUd77P9F"},{"iv":"0trQJvWlQjrloIyy","ct":"/s2+D6cBWq6s05kB/jkhRID7vQn6h/4WcV3s4VhIWporb+zut/c4MS0gS5/7HR4O"}]}],"carta":{"iv":"Hb+3zjVAoGg5oqvx","ct":"hEYOEchZ7WXW3AuW624IHDpIIkBynDXiEqY2F7Kd2ksxNI4vU1zfaSdem8mXAIhJ4C71O0iQL6pF3W1ZxKtz0z930rbQYkW3UUYxsRfs9IyaX3+Ix2d7eoHXy0x6Eji9qmzBsK8Q7Iu7bT/w875wBSUlcbMmUxHbQZDX1zpceP6g3EWziDqw8vo5NTMTwrmuFMG8v3pILu4/InfdnnhjxcH62wji1fg4aVP155388KQDP6BU+NSMciMc2dh206o/xrrkHr5pzDwHlkdP1N9Tnop8MpFq0IMjqO+hMBA0rJswQvAguCDXX/MJqFjuzcyD4pvonWi1DUB8ivvqCunGbQIzl1xLJQiE+zdNZEnrv1YO2ScjxN4xRDIz1JuHqYGsH5hvIipMvx4I6S8nQY7CTBd7V1+mFDhQi22kJ33+E7yQO0vm5ZQB5vOtzW1+xg+g9wLgA9t1ZVdANLF82KkC/U/subuknUlUwPftMrFAv1d4Y5SHOtqQjSuvrqgYT5sYuXQkwQgfJVusJ5UbdIsgaoHt8LygJe3qdweTCZCTg6jeNowZ3W6z5rCxOkQo5ZKFZJpL+ihGu/DQETyC1uTZQEmHcThOE8a/1+3BhlZ8Lo3crOoq/cdJj2nQWKOXRkNNqcC53ZB3OXZbrUU1CQL+e6FffVMIgY3M0FaIO67vPJVhvilnwUqvR5ulmd0Ke1Hv9mSqxnlDXlCEvcKwA3tfu4Y4fgRUPIZCXyJ76YOvynyx6zA7ktCuDnD5WtsG+vjt0iwUsfw4sssx7sCJOL7O1MzQf/Its+bmZKPcrj237IuOApb2AfI+UYVh5XmkyRB5ZF6tMbkQAooXgzjEgCKFeJtzmCUEtiq8NCg2tCyVRGWEhQnBpbLMNNCf8Txtwix0RdJjpHNDkOUhJYVe5tdmR4OU0RTpcMfa9C9LdMQSGcf8KIE4ifoCLyvPAnKzLFDrWMDi5WEHD+ds3KB3nQ5FpS9I3rczBVHAIHuurCVbo60LMYqQGIgDjlBMpskfqecynhkW3RCG6AoobP51KLilxhZ95wQyjYT8rC+pI2CcjSCf2kSYhiDD2vNUsn3sKSrypu7bbGpyMB3pXT2T2nZNa3Ps0zWj6we+cm1oH3C+rCJYvWL2QEmJFwRWOOriWyEuNz79JYXk73n84bgXEnaUz6FCV9lOXcC2edfTmkSlMwyG7CBI3BKnr6jGeZ/8zFRYvKTH7gQIJiKJx+fQV6tIUJVw1Ci7/NaHmKZG9vSsbncRZhSRpOjeJ4vM2Z6Jd/arxipy5BS18h0kpuwW3vdWCoigEZS/lGh4qdumTBqie0NkHI5zbK2mxeGE+uCQxi0SLz02GjS1/TL/IPJZRyFkyR0NWx7RApFCIyIaykLpZCA5FRjxLaxJs52dKNTrI6sRaYmXWNTwg/cCWTuxeINIwkUPy6hXAsj/Qhr434sIto6BOKOOotWHQtYKZv23sxy+dm9+4amotgRJXXCzSOBUZmSAaHwV3wClfdb77/kChOBqq5jR2Yc4elvbmKC6/XvxYAincL0jQJIvoXpHc3zBCnA3V6SLciLR7OOTC0Te2ckBhwAqFGHBV/juQNgLV5Y/HIMfRI95K35XKxkmexCfM6tackp6uia4th9Rua+PPM3zPm9zb4LY+RVvLHb9QJZwt7E26smuqz/qLjllr0vwqZ6RcC4aCRrlwWxuhrn92kbpGk3bSBPOUw+AZFwH10xblm62iHBoBuixbu/3b7ZCfrU2RboR1RbjipQ7ezmP5yfYg2i1/xkW+/3ElDllSJdNanJFPpMKs+pJFrlT/y80eRaYmH7tkJKSYkZ7kzHNcGRX0kQyIbCGk/ZtmSiEqOZcScA8hSG1Ff8+Fk1e6b6xAmvokO2OoQi9a2wuPv+YH97sDFpsrlPnP890bB3U5586Jbe4quqpdbP3nwHWbfjmOTB0LcknyTBnKA9fi/aHAAmLV2HtHwLhG8hoChMxCsndVnCZOzP1VpGG07Ij9WPfNZfBL/qswCIiatAgKGvcNbVtz5S0nw3/FC6pSTCyRrz1CC7WSH0Alrn6m8Pbtel/7zCh9pH8uTNebd+ZkbR70cgMvFJOLVlYOlr67tR/PHYiqoNSk6Y0sxx17Ozp6J/mbzDtJ5BLunGIwfNHIJu2ceXTSpIn/hxYbIbGb4vzRfsJCCIeVe9Ytb43jvdgV/opPk1YfPcw1Cz13NphegSE2pXAG2tzb5Z58ih2YMpWzVbWvS1Lo3u1bfRZHX6EJVGYFSNARlNob5pQ1WGHJQ0JFN91GJXUss8jBEzlSTkGPfbt26kz7bo5M53/IigkIEHl0YnCmdEw+WFa59cu2th6p/2edVIKjAuf3b6JL3csfGOt+9F5LaDTq44+JrulcN3SJqXHmFcfN+OIrP6nJwOORF1XQK2879eH5zvi82ZHsrkAFUUnvBtbCZIYA9gFSBSDvUQV4QUY+E6ANG0nIvAxQe1iNYep50KXtnypforVTDpOu7uv6+ezkz4RTtIJ64G8xbV6Sbv1ucw2Dxkqftov1Hgp8Blt8fV79Hjo4tqGRTLjBWYCK920BUPGuVSgqIHXgF9j1Jfync7bjfKXOYnU/1ErxAdki7YZOUhGs9frGzEyvuHl3tUq/p0VBIRUEIzo/QjzGTx+m2lSTPYX5RNp65yzdc62pt95eTGnn2t57cDk97ArCv9ouw5j+VNqIODaC2keQKKZeMAtlS/Suj7N0nmWjbcxnxSjXBDugsBceSdYUVF/OO/WpYZ9hZKiakqXAnu5b9dGpYYYzrMgRhVuphwBxpAACPSEPDiY7QFd3kdvxvWO/NrV/j0x29p3h4jDGloWEixJLOSwGsS6Cu2NRycQ8/hjfJmRuhk9xpdijct3O2cgjvqYHyK+Xq8MnfahW7AFSa2OVTtfj6J8fGb8NCabCnSxo6rNt6nY7yBpecKzqEcXmvHZa1CUYsm0rk5rzCdKFUCnixFbNZg7wLaL//NRT1g8zinzVnB0AC7bGs1a3mLCnPuxTD+IEthaadQl1o/AmgYSDUy0AXr4tcZvE9Ano4UcJkLMd4WxJ8Vc9M6mCf5wEruAbRj8a9BKm6DAfH595ubLWJ32J0fYA60efuPgdpSnPcXmXX6rNa7peaUNK7T56XAjy/dBWfyFfRGxdOPr2kh1yUh0epIvhwoDBEGK1T45PVSitBBfZ1PD5Ahb2YfDP9U/Du0co00TcLy4QX4YOMVV+vVnVj5q8DOiABsAl3UjMtb7hfOC7BN+J3UsQRPyspPKkp56lzQFgNLZQudl+PmUpb9kcVzviDG9rmSLlJdVyRMLv3y2nlvtCgTaLs7whj+fQE0t0u/rQypJYH8h6ltFWHgjrLuPKY5DMm6vQiHpLcqsCLZYlF7pW0/V+KxOhnfeOVfMyHa9R687U+A22O64Sqh3PzHxMdx3rUfYwABGEwy+AtV5i6Svr7nxBJsM3DDvVrEJI8HDZkn3NOwTaeQawVkFgBfscgcmWXehqTzGP+T95wPju/Vt/zx8vSUhbPZN8q2NDp0lZewEvGlOYfcRYqZKlIopKOpCt8USh8HiRXIN9b5yFJ9JwWrJ4AHPebK0pjIWH5kSM37Sml1yvcgd9TlMC60o/og7+yFjRNKsRZjReQiwczQjpIvxfM9aLh/n5ZuA+8ZTQG11+vucgqz6RzZxtXYyNfkBXMyRAqe73vPGEGuArAxoZIarKzlT0s2KB+O4Ly2ir/DG6Dx0d2IBxzkWHoRWJQsoJpOvIoP5+7FWlcDLLJJQw8X+VaC8uRK4TpjdHfsIRqssPSsUr8ABuugczSrRtqHUUSFGzugDUvjp4mCVmNYUrE8nlTCQUBBfInreUNxPKVobPe6DCu1xY21HdnyjZmCS/YyfK1zWE5JUPYj47ToiUZLHdYJcE1rvl3Zu0CN1E7UfJOSTF+MoGKjJQuAGrZIR4413mzGPBsKYkw/T2vJ+p5ThlydV7rxGg+qQpciJo43ccDITurLYOp9/d6dDCeJT4oW5kqNJa/gqIw1m50Y8eD9MWB3sDNV0rlDceUuKH8bmQYvTB7SiKAVlAYdEjn0mz+0Rt+/etjgNvcI4jniwPMGyAXr9orOD9dg43pG8cM9ftFVlC7OHRF9Oc2F3DWOCsOvzLwrlLNtlkgz2uETa78o04B0MthN6iaI3HnznE07EzijZ7RrRWBUsumH6dD4AlB0qkDZlkjWq7aKaqqf3LOYgB2XAUiZe3EaugBNgeUxMMBb024PL2sheCoktXXITtqwGW0A9TgZHFKHBOzc9a1Df+MZGXEjI6U/u2zMRQS6Vh6U6FAO8WWId7f5qvoTUsFSZ0W5SDJWpCON+kmJQyFYKYcfHtohRKP1261OvS9G+HgqnrY7UD3xczBTkYFE3oxnIVCqlWaKeSOOUSF6KyF5WYhTCDjjhWalCfxYEJDl5ahyFaWxYuGCwRmXxn9Q3FbqHM4h89c7ygUrbR8Qc6Z7KcuFWGpGWu7nDHVC+9cmQ8FbyDdqcSNAoJd326ug0+9VyF7tVIREuQVlb+T5Y3pQ6N45C9vqAMHbYEM2BVc9rUERB8V5eSlSXVfxlDX6nHE5s/6+EgROnB3xQhA2f7t8R7rtPo8aTowITrgDZ064FSacu2CtLp5NPudykrzpOoAAaZWTA9eKA2cX5VnuNBtshLkc4vs3z+AV9Fxx8tpq2eEL9OCPu81ZxTP3caC1kvBcUStXe46sHyZkXddlj0Lqug8ROtx6wKnI9zGtyCiwNIaGd7bWBYUQ4ym6pQgBCGShtdKkqtlHC3x51EywZSiqqa2knnlsOwPrThNITQs7RgkSVuLOIEJortqtHMcntR35gXI0ugFulqd5xTIrJVdy40qUngsvPX2RRah1jCckL0dGJ/+vaSWtGnt863Q=="}};
-const CHAVE_SALVA = 'quiz-amor-progresso';
+const DADOS = {"iter":60000,"nome":{"salt":"EUtj1Q4SIGU3oy/+UHnwLA==","travas":[{"iv":"lI8QI5k34cL80DmC","ct":"M0m54srLAbLNERNBhpaMq//zfoa/7WeZDWb6hHsrdEG1EbU7Zquu6C/4fF0Z6I4C"}]},"quiz":[{"pergunta":"Qual é a minha comida favorita?","salt":"rkCZ81wnL5tgR+rdqoHFWg==","travas":[{"iv":"+nf1CwkUuffZGyZZ","ct":"TITV/ZN3ZEnTu5PRInVJWEoqhIoTi7IRSKrJilFvPE4J37pE7Q8X82yXrIfemJ0o"},{"iv":"7H+iEcM/AaDsfmE9","ct":"2TwKIpi6nkYSnjl2KY8G2fXyIwXM//Gmg8iaHsAY5498Pd0ZewD+kGcVCQ3bb1Ro"},{"iv":"YE3JDyG13TJAlhRG","ct":"dHh6vYJmmo/Yr6z9ILubyb6s8R9awMwKUnZpi9vRdbwCCCy1GeYu88XmgpKK611j"}]},{"pergunta":"Qual é a minha série favorita?","salt":"Inmrhh10SUblLrrRSgDIIw==","travas":[{"iv":"S9FqOD+2ymKXMB9A","ct":"0AXhZAIozyKSF1LZgus6RDHdEFpXhw+A73LjnyFRKWEm/de5GFVrsqDTdND1tch5"},{"iv":"iDBqJ3ZDwKLhoPWl","ct":"UzMxLzv1AwzBEWP3w54u0gMb3nWAkcSlOp8QcGpiGL7qNpaJ/DJf26S9MIsfWb0E"},{"iv":"pSXuH0//0k8qhXTM","ct":"JBlozesGcDHxfyNUx5Z86YtzeL2xUyae7zb536ppujxjJaynsLgFTbMkZ6UOd97H"},{"iv":"YD4cRwaeSnVz6Kag","ct":"vAC1J+t/2FmKg3Zj939OhT7laiWOEdEKTjCcVL1mVYXiGzfbpn/OA+XvYmqVJBsg"}]},{"pergunta":"Qual é o meu apelido atual?","salt":"0i/7EPTJRgqCYpicVa52XA==","travas":[{"iv":"NiPY81uVkv0glMfi","ct":"l1Hxch7wTOePfqqT9CTyLZFkRZYEbGWUJXyZCf8jg//Hykg1XxhlO0QiLMtBUufm"},{"iv":"M+w9aWKeFo33sSF2","ct":"+H6P5jid/JpECfb0t7PGXEefQ6tmS3SXB3MCA3Ls9zmBfnfot2E0YWdqsxHZZhHI"},{"iv":"n7awvUacfQQ3cI2G","ct":"NkgC4NTTycBQpyf9EHgypIhC28HJYqVsQ+lLt++dTBxpDSRjt25pKgAxjFiNjAhl"}]},{"pergunta":"Qual é o meu esporte favorito?","salt":"2g6RX2OdszvLGDMDya132A==","travas":[{"iv":"gPJA/da4UvrP8z8p","ct":"h4I//d23MbCNqb3CcF6Lta9vYp81NycWDC65Gb3uRZ4W6NZw4ALc/PMTCF+a1+pt"},{"iv":"t7Cng2QLzoY2Q3ke","ct":"CHd5dsV3l02g6BlkqlMZ90gjH1qVXdgCJ8JZU1Vj0IBonN6q66m4idwMv4TmzIvV"},{"iv":"aXaHJj/zgxF4TUXB","ct":"iA7DKltyxZGiTEE36N9V+kUKnNflyk7gZ+CP2dJlrLLMpUFf6DyHnAhv+YgRgCeH"},{"iv":"tdfTx4iVg29oE3NB","ct":"Ek3sDC0jCLqjaSZtQnbDEfuTef05cmzfV6gRr7cRb59qm4WW62+LFfTBqMcPF1lX"},{"iv":"2kgzRODD0upR2hMF","ct":"na/k0VzpN8GnqV7njCqeXYVKYCh/E4n3i6Tuj6dGinZTjygtxh4WCOYU0JRqjH/0"}]},{"pergunta":"Qual é o meu cantor favorito?","salt":"yJp4jKwmYXWvfvq+gf6RIg==","travas":[{"iv":"XTTFPPQqQhgqqB2Z","ct":"7NR+2S5FqMQGPKOixd9IjFlEYHOFlloSf6lMFYQQpzhD6ToZDxZfBu0DiUCslCam"},{"iv":"06k7q+gY41bU0YNR","ct":"qsVHDuI1AY90uDoQYOPIMx2Xz4cQkmSvL0N9+dAAKApvXUn0vBIct1YLT8OSOu6a"}]},{"pergunta":"Qual é o meu signo?","salt":"6rDCBz8wNsc9/6crNUWonQ==","travas":[{"iv":"vIWAr+l3rdOOwZXc","ct":"9QMYJThrMwyF5rCOojqPdI8TkofqiEY2g2LtmtNiviuglfNlZEjddmBr4+LSpa/q"},{"iv":"gq23PuZJ5HQR1WW0","ct":"amn0ISUpXqf2R2GOxxT6NZc8e8pgu8ABHfloxin/4N/0DOU3E6FbAgrq0S1uiT47"},{"iv":"QUmyqPvzaMhIwvkO","ct":"jHBPPiC7v7yXokY9vt59Qu3KRCTbUCF0mhHDoKFlZY7BpPWjyXO8qPELW331+NPv"}]},{"pergunta":"Qual é o meu doce favorito?","salt":"4bQ4Fg0Fxxpcgy4VpJmrAw==","travas":[{"iv":"AQ/B0Djlaixmjb6S","ct":"xFf/+nuOTO4SF9p4T5UzSzfRaVaZ3Rh2NGAVFVtekIu4yyXoZgs+ZmwLZUWfCkn3"}]},{"pergunta":"Qual é o meu animal favorito?","salt":"4kIOie7687T/gCB2lL/OHA==","travas":[{"iv":"+chDP1sxMXB7hKHT","ct":"QflB1Wzx2mKxzW2sN7uFfh6dY8nXQoNpSencJy1eEgHL89H48cI019sWYY8Jf6k+"},{"iv":"jRsF91PucrpIgth5","ct":"1ZGA6cQy2gQHlBdE+2K06sEOaHyDZL8F5edKr5hSYB2g5//VkHMPPGpf20nijEGW"},{"iv":"Qq+euZPEqOfLgwlo","ct":"jCwN+JitbCihGuiej86C4mLjJhylvfZxXtNJnDv7sAe4co7fbKuyIznIhgyScMl+"},{"iv":"h9UAtoHSkfh6iBhi","ct":"TUPMQCpfiQ7Ut4QHmM7ljzNF/kmGarx7nQkQy7W32p7bo6iaySofXdes0wYmX5Gn"},{"iv":"iyEPaEvErygXJUSw","ct":"NGkMCzp3Q/ydaY9lg1crcX0MMW3Ff74iAyvo0AyYkEsb5pYoNx7qNzU1zmMaCGux"},{"iv":"bDVjxpGzUOUz+8Gd","ct":"/GviPWVebhU4TY3UCSxOBa8r4EFjxZJRAHFZebNknr8kaGxlkxvOEdl7L/jwx6Dv"}]},{"pergunta":"Qual é o meu jogador de basquete favorito?","salt":"/U90q3+MwpGQpTCTCcAfYA==","travas":[{"iv":"ysY/yYG4KvSYksyH","ct":"R9I/j3j6qtP/+IN/y4NhtV6HArv+QLP0Cwc+T3dlsG1J/DFz80MS8B/M6F6NMaG6"},{"iv":"BqgLgs02fOZf+1jU","ct":"gMwxoXpuEicy2ge02b5JTRGG1oFaa/dxdMbgqVNRDdaKRNreYYWyDZEqw4Qlte5w"},{"iv":"nmQCCrAapH8S2c6M","ct":"LVJS+Fn8Jn01GE4tAeIW8eI6MGkBZHUSnB0sX3ff2Hi4eTeAnDNfyzheABoESIEX"},{"iv":"hvNrPhHcYyzzQOt5","ct":"lhGJCU+I/HCaWgs2fexzQJlZ4jBOADpoOjG4rTkcyO6PXCaQ8nZZL4yqyuizkT1R"},{"iv":"/2XfCfwnuyQCi7e6","ct":"NGODqA7gM88762J/z5ZRn545i2qw4oDmc3q55E8HhE056BxS4IdUZyh3FwcG24qv"},{"iv":"haf53yXZa+YbUQNW","ct":"K7qlX4TPHLxRW/s1TRxcZHT/wwjVbh4aT+BsQp8C3j22wuiZ6HvUP7JQRHTDL/q/"},{"iv":"jN5hRjWHFCxPrmaU","ct":"/QwM6k5KPhiUijmuaGoumcDtInIComLxOW8qCdyEWNI/jYR0luOVclO2qH4nZD3X"}]},{"pergunta":"Qual lugar do mundo eu mais quero conhecer?","salt":"yajEuLLmCRM6bI1OH9TqMg==","travas":[{"iv":"W8oh6vkKzqM7hZlp","ct":"544pC78v+y7LFQMils7rzjfG7DwNCshq++KJyFThLPPpjlJ2IKDp471mElQN7xSe"},{"iv":"n2NDI6nIHJTi1NHi","ct":"O99LurfbQCeLdWAOkpT3035DmmCJIlJFKms+euzdaBMRfv91wdHTp6YMikobWJuW"},{"iv":"O2D/emFMb++F8U/b","ct":"4z+cA2Oe/hIQ2MDBQHXsu05F0oVW/MS7MKdcUKgFSNjHyzQjN2BjaOk/GZt3i6us"},{"iv":"2EPVW8f6DRTLHJ8N","ct":"4OYub0be7BuQfZXNC+Jz/O5S/lfpyX2Qd66mV/jyYVAYfPHTUD7yjZ/vdV/5xcqI"}]}],"surpresa":{"iv":"i3+/aQcxrqLap5H+","ct":"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"}};
+const CHAVE = 'quiz-amor-v2';
+const MAX_ERROS = 3;
 const ERROS = [
   'Hmm… não é isso não 👀',
   'Errou! Tenta de novo 😅',
@@ -189,44 +226,26 @@ const paraB64 = (u8) => btoa(String.fromCharCode(...u8));
 const normalizar = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const sorteia = (lista) => lista[Math.floor(Math.random() * lista.length)];
 
-let segredos = [];
-try { segredos = (JSON.parse(localStorage.getItem(CHAVE_SALVA)) || []).map(deB64); } catch (e) { segredos = []; }
-const MAX_ERROS = 3;
-let erros = 0;
-try { erros = Number(localStorage.getItem(CHAVE_SALVA + '-erros')) || 0; } catch (e) {}
-const salvarErros = () => { try { localStorage.setItem(CHAVE_SALVA + '-erros', String(erros)); } catch (e) {} };
-const mostrarVidas = () => { $('vidas').textContent = '❤️'.repeat(Math.max(0, MAX_ERROS - erros)) + '🖤'.repeat(Math.min(MAX_ERROS, erros)); };
-const salvar = () => { try { localStorage.setItem(CHAVE_SALVA, JSON.stringify(segredos.map(paraB64))); } catch (e) {} };
+// ---------- estado salvo no aparelho ----------
+// fase: inicio | quiz | carta | concluido | perdeu
+let estado = { fase: 'inicio', nome: null, segredos: [], erros: 0, vale: null };
+try { Object.assign(estado, JSON.parse(localStorage.getItem(CHAVE)) || {}); } catch (e) {}
+const salvar = () => { try { localStorage.setItem(CHAVE, JSON.stringify(estado)); } catch (e) {} };
 
 function mostrar(id) {
   document.querySelectorAll('.tela').forEach((t) => t.classList.remove('ativa'));
   $(id).classList.add('ativa');
+  window.scrollTo(0, 0);
 }
 
-function carregarPergunta() {
-  const i = segredos.length;
-  const total = DADOS.quiz.length;
-  if (i >= total) return mostrar('fim');
-  $('contador').textContent = `Pergunta ${i + 1} de ${total}`;
-  mostrarVidas();
-  $('progresso').style.width = (i / total * 100) + '%';
-  $('pergunta').textContent = DADOS.quiz[i].pergunta;
-  $('resposta').value = '';
-  $('resposta').classList.remove('acertou');
-  $('msg').textContent = '';
-  $('msg').className = '';
-  $('resposta').focus({ preventScroll: true });
-}
-
-async function testar(resposta, item) {
-  const base = await crypto.subtle.importKey('raw', enc.encode(normalizar(resposta)), 'PBKDF2', false, ['deriveKey']);
+async function abrirTrava(texto, item) {
+  const base = await crypto.subtle.importKey('raw', enc.encode(normalizar(texto)), 'PBKDF2', false, ['deriveKey']);
   const chave = await crypto.subtle.deriveKey(
     { name: 'PBKDF2', salt: deB64(item.salt), iterations: DADOS.iter, hash: 'SHA-256' },
     base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
   for (const t of item.travas) {
-    try {
-      return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: deB64(t.iv) }, chave, deB64(t.ct)));
-    } catch (e) { /* não é essa */ }
+    try { return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: deB64(t.iv) }, chave, deB64(t.ct))); }
+    catch (e) { /* não é essa */ }
   }
   return null;
 }
@@ -247,49 +266,102 @@ function estourarCoracoes(el) {
   }
 }
 
-$('comecar').onclick = () => { mostrar('quiz'); carregarPergunta(); };
+function tremer(campo) {
+  campo.classList.remove('tremer');
+  void campo.offsetWidth;
+  campo.classList.add('tremer');
+}
+
+// ---------- início e nome ----------
+$('comecar').onclick = () => { mostrar('nome'); $('campoNome').focus({ preventScroll: true }); };
+
+$('formNome').onsubmit = async (ev) => {
+  ev.preventDefault();
+  const campo = $('campoNome');
+  if (!campo.value.trim()) return;
+  $('enviarNome').disabled = true;
+  const segredo = await abrirTrava(campo.value, DADOS.nome);
+  $('enviarNome').disabled = false;
+  if (!segredo) {
+    $('msgNome').textContent = 'Esse não é o nome completo da pessoa certa 🤨';
+    return tremer(campo);
+  }
+  estado.nome = paraB64(segredo);
+  estado.fase = 'quiz';
+  salvar();
+  mostrar('quiz');
+  carregarPergunta();
+};
+
+// ---------- quiz ----------
+function mostrarVidas() {
+  $('vidas').textContent = '❤️'.repeat(Math.max(0, MAX_ERROS - estado.erros)) + '🖤'.repeat(Math.min(MAX_ERROS, estado.erros));
+}
+
+function carregarPergunta() {
+  const i = estado.segredos.length;
+  const total = DADOS.quiz.length;
+  if (i >= total) return mostrar('fim');
+  $('contador').textContent = `Pergunta ${i + 1} de ${total}`;
+  mostrarVidas();
+  $('progresso').style.width = (i / total * 100) + '%';
+  $('pergunta').textContent = DADOS.quiz[i].pergunta;
+  $('resposta').value = '';
+  $('resposta').classList.remove('acertou');
+  $('msg').textContent = '';
+  $('msg').className = 'msg';
+  $('resposta').focus({ preventScroll: true });
+}
 
 $('form').onsubmit = async (ev) => {
   ev.preventDefault();
   const campo = $('resposta');
-  if (!campo.value.trim()) return;
+  if (!campo.value.trim() || estado.fase !== 'quiz') return;
   $('enviar').disabled = true;
-  const segredo = await testar(campo.value, DADOS.quiz[segredos.length]);
+  const segredo = await abrirTrava(campo.value, DADOS.quiz[estado.segredos.length]);
   $('enviar').disabled = false;
   if (segredo) {
-    segredos.push(segredo);
+    estado.segredos.push(paraB64(segredo));
     salvar();
     campo.classList.add('acertou');
     $('msg').textContent = sorteia(ACERTOS);
-    $('msg').className = 'ok';
+    $('msg').className = 'msg ok';
     estourarCoracoes(campo);
     setTimeout(carregarPergunta, 900);
   } else {
-    erros++;
-    salvarErros();
-    if (erros > MAX_ERROS) return mostrar('perdeu');
+    estado.erros++;
+    if (estado.erros > MAX_ERROS) {
+      // perdeu: apaga o que já tinha destravado e fecha
+      estado = { fase: 'perdeu', nome: null, segredos: [], erros: estado.erros, vale: null };
+      salvar();
+      return mostrar('perdeu');
+    }
+    salvar();
     mostrarVidas();
-    const restam = MAX_ERROS - erros;
+    const restam = MAX_ERROS - estado.erros;
     $('msg').textContent = sorteia(ERROS) + (restam === 0 ? ' Última chance!' : ` Restam ${restam} ${restam === 1 ? 'erro' : 'erros'}.`);
-    $('msg').className = '';
-    campo.classList.remove('tremer');
-    void campo.offsetWidth;
-    campo.classList.add('tremer');
+    $('msg').className = 'msg';
+    tremer(campo);
   }
 };
 
-async function abrirCarta() {
-  const tudo = new Uint8Array(segredos.length * 32);
-  segredos.forEach((s, i) => tudo.set(s, i * 32));
+// ---------- carta ----------
+let surpresa = null;
+
+async function decifrarSurpresa() {
+  const partes = [estado.nome, ...estado.segredos].map(deB64);
+  const tudo = new Uint8Array(partes.length * 32);
+  partes.forEach((s, i) => tudo.set(s, i * 32));
   const chave = await crypto.subtle.importKey('raw', await crypto.subtle.digest('SHA-256', tudo), 'AES-GCM', false, ['decrypt']);
-  let surpresa;
-  try {
-    surpresa = JSON.parse(dec.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: deB64(DADOS.carta.iv) }, chave, deB64(DADOS.carta.ct))));
-  } catch (e) {
-    segredos = []; salvar();
-    alert('Algo deu errado, vamos recomeçar 😅');
-    return location.reload();
-  }
+  return JSON.parse(dec.decode(await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: deB64(DADOS.surpresa.iv) }, chave, deB64(DADOS.surpresa.ct))));
+}
+
+async function abrirCarta() {
+  try { surpresa = await decifrarSurpresa(); }
+  catch (e) { return mostrarConcluido(); }
+  estado.fase = 'carta';
+  salvar();
   const caixa = $('texto');
   caixa.innerHTML = '';
   surpresa.carta.split(/\n\s*\n/).forEach((par) => {
@@ -297,44 +369,86 @@ async function abrirCarta() {
     p.textContent = par.trim();
     caixa.appendChild(p);
   });
-  prepararVale(surpresa.vale);
   estourarCoracoes($('envelope'));
   mostrar('carta');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-function prepararVale(vale) {
-  // validade: até o fim do dia seguinte ao dia em que ela destravou
-  let destravou;
-  try { destravou = Number(localStorage.getItem(CHAVE_SALVA + '-data')); } catch (e) {}
-  if (!destravou) { destravou = Date.now(); try { localStorage.setItem(CHAVE_SALVA + '-data', String(destravou)); } catch (e) {} }
-  const amanha = new Date(destravou); amanha.setDate(amanha.getDate() + 1);
-  const data = amanha.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-  $('valeTitulo').textContent = vale.titulo;
-  $('valeValor').textContent = vale.valor;
-  $('valeTexto').textContent = vale.texto;
-  $('valeValidade').textContent = `Válido somente até amanhã (${data}) ⏳`;
-  let jaAbriu = false;
-  const abrir = () => { $('modalVale').classList.add('aberto'); if (!jaAbriu) { jaAbriu = true; setTimeout(() => estourarCoracoes($('valeValor')), 300); } };
-  $('botaoVale').onclick = abrir;
-  // abre sozinho quando ela chega no fim da carta
-  if ('IntersectionObserver' in window) {
-    const obs = new IntersectionObserver((itens) => {
-      if (itens.some((i) => i.isIntersecting)) { obs.disconnect(); setTimeout(abrir, 1200); }
-    });
-    setTimeout(() => obs.observe($('fimDaCarta')), 1500);
-  }
-}
-$('fecharVale').onclick = () => $('modalVale').classList.remove('aberto');
-$('modalVale').onclick = (e) => { if (e.target === $('modalVale')) $('modalVale').classList.remove('aberto'); };
-
 $('envelope').onclick = abrirCarta;
 $('envelope').onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') abrirCarta(); };
 
-if (erros > MAX_ERROS && segredos.length < DADOS.quiz.length) mostrar('perdeu');
-else if (segredos.length >= DADOS.quiz.length) mostrar('fim');
-else if (segredos.length > 0) { mostrar('quiz'); carregarPergunta(); }
+// ---------- vale (e tranca tudo) ----------
+$('botaoVale').onclick = () => {
+  const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
+  const data = amanha.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  const v = surpresa.vale;
+  // a partir daqui a carta some pra sempre: apaga as chaves e marca como concluído
+  estado = { fase: 'concluido', nome: null, segredos: [], erros: estado.erros,
+             vale: `🍰 ${v.titulo} de ${v.valor}, válido até ${data}`,
+             resgate: surpresa.resgate, resgatado: false };
+  salvar();
+  $('texto').innerHTML = '';
+  $('valeTitulo').textContent = v.titulo;
+  $('valeValor').textContent = v.valor;
+  $('valeTexto').textContent = v.texto;
+  $('valeValidade').textContent = `Válido somente até amanhã (${data}) ⏳`;
+  surpresa = null;
+  mostrar('valePagina');
+  setTimeout(() => estourarCoracoes($('valeValor')), 350);
+};
 
-// corações subindo no fundo
+function resgatar() {
+  if (!estado.resgate) return;
+  const link = estado.resgate;
+  estado.resgatado = true;
+  estado.resgate = null;
+  salvar();
+  window.location.href = link;
+  setTimeout(mostrarConcluido, 600);
+}
+$('resgatar').onclick = resgatar;
+$('resgatar2').onclick = resgatar;
+
+function mostrarConcluido() {
+  if (estado.vale) { $('lembreteVale').textContent = estado.vale; $('lembreteVale').style.display = 'inline-block'; }
+  $('resgatePendente').style.display = estado.resgate ? 'block' : 'none';
+  $('jaResgatou').style.display = estado.resgatado ? 'block' : 'none';
+  mostrar('concluido');
+}
+
+// ---------- abrir na fase certa ----------
+if (estado.fase === 'perdeu') mostrar('perdeu');
+else if (estado.fase === 'concluido') mostrarConcluido();
+else if (estado.fase === 'carta') { mostrar('fim'); }
+else if (estado.fase === 'quiz' && estado.nome) { mostrar('quiz'); carregarPergunta(); }
+
+// ---------- anti-print (o que dá pra fazer num site) ----------
+const esconder = () => document.body.classList.add('escondido');
+const mostrarDeNovo = () => document.body.classList.remove('escondido');
+document.addEventListener('visibilitychange', () => { if (document.hidden) esconder(); });
+window.addEventListener('blur', esconder);
+window.addEventListener('pagehide', esconder);
+$('cortina').addEventListener('click', mostrarDeNovo);
+window.addEventListener('focus', () => setTimeout(mostrarDeNovo, 400));
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+document.addEventListener('dragstart', (e) => e.preventDefault());
+document.addEventListener('copy', (e) => e.preventDefault());
+window.addEventListener('beforeprint', esconder);
+document.addEventListener('keydown', (e) => {
+  const k = e.key.toLowerCase();
+  const atalho = e.key === 'PrintScreen'
+    || ((e.ctrlKey || e.metaKey) && ['p', 's', 'c', 'u'].includes(k))
+    || (e.metaKey && e.shiftKey && ['3', '4', '5', 's'].includes(k))
+    || e.key === 'F12';
+  if (atalho) {
+    e.preventDefault();
+    esconder();
+    try { navigator.clipboard.writeText('Nada de print 😏'); } catch (err) {}
+  }
+});
+document.addEventListener('keyup', (e) => {
+  if (e.key === 'PrintScreen') { esconder(); try { navigator.clipboard.writeText('Nada de print 😏'); } catch (err) {} }
+});
+
+// ---------- corações no fundo ----------
 const fundo = $('coracoes');
 for (let k = 0; k < 18; k++) {
   const s = document.createElement('span');
